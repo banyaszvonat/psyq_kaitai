@@ -22,6 +22,7 @@ seq:
     type: u1
   - id: sections
     type: tagvalue
+
     repeat: eos
 
 types:
@@ -84,12 +85,19 @@ types:
     seq:
       - id: next_sec
         type: u2
+  code_with_padding:
+    seq:
+      - id: code
+        size: _parent.len
+      - id: padding
+        size-eos: true
   code:
     seq:
       - id: len
         type: u2
       - id: code
-        size: len
+        type: code_with_padding
+        size: len + len % 4
   xbss_symbol:
     seq:
       - id: number
@@ -120,6 +128,10 @@ types:
         value: with1+with2
         doc: In the inspected samples, only addition was used, but maybe\
               unk can specify another operation.
+  patch_section_only:
+    seq:
+      - id: sectbase
+        type: u2
   patch:
     seq:
       - id: type
@@ -133,15 +145,13 @@ types:
           switch-on: addr_type
           cases:
             2: patch_indexed
+            4: patch_section_only
             44: patch_base_offset
   uninitialized:
     seq:
       - id: len
         type: u4
-  eof:
-    seq:
-      - id: dummy
-        size: 0
+
 enums:
 # Based on messages extracted from DUMPOBJ.EXE
   tags:

@@ -9,7 +9,7 @@ doc: |
   was used as the canonical parse.
 
   There are a few things still missing:
-  - Patch types (It's unclear the numbers stand for)
+  - Patch types (It's unclear what the numbers stand for)
   - In the patch instruction, there's two unknown bytes,
     which are 0x00 0x04 when specifying sectionbase() and a section number. This
     is probably some sort of enum.
@@ -37,13 +37,13 @@ types:
           cases:
             'tags::processor_type': processor_type
             'tags::section_symbol': section_symbol
-            'tags::xdef' : xdef
-            'tags::xref' : xref
-            'tags::code' : code
-            'tags::section_switch' : section_switch
-            'tags::xbss_symbol' : xbss_symbol
-            'tags::patch' : patch
-            'tags::uninitialized' : uninitialized
+            'tags::xdef': xdef
+            'tags::xref': xref
+            'tags::code': code
+            'tags::section_switch': section_switch
+            'tags::xbss_symbol': xbss_symbol
+            'tags::patch': patch
+            'tags::uninitialized': uninitialized
   counted_str:
     seq:
       - id: len

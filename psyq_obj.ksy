@@ -39,8 +39,9 @@ types:
             'tags::section_symbol': section_symbol
             'tags::xdef': xdef
             'tags::xref': xref
-            'tags::code': code
-            'tags::section_switch': section_switch
+            #'tags::code': code
+            #'tags::section_switch': section_switch
+            'tags::section_switch': codesection
             'tags::xbss_symbol': xbss_symbol
             'tags::patch': patch
             'tags::uninitialized': uninitialized
@@ -151,6 +152,15 @@ types:
     seq:
       - id: len
         type: u4
+  codesection:
+    seq:
+      - id: section_switch_segment
+        type: section_switch
+      - id: code_tag
+        type: u1
+        enum: tags
+      - id: code_segment
+        type: code
 
 enums:
 # Based on messages extracted from DUMPOBJ.EXE

@@ -92,6 +92,15 @@ types:
         size: _parent.len
       - id: padding
         size-eos: true
+  # code_with_padding:
+  #   seq:
+  #     - id: code
+  #       size: computed_len
+  #     - id: padding
+  #       size-eos: true
+  #   params:
+  #     - id: computed_len
+  #       type: u2
   code:
     seq:
       - id: len

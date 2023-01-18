@@ -39,9 +39,9 @@ types:
             'tags::section_symbol': section_symbol
             'tags::xdef': xdef
             'tags::xref': xref
-            #'tags::code': code
-            #'tags::section_switch': section_switch
-            'tags::section_switch': codesection
+            'tags::code': code
+            'tags::section_switch': section_switch
+            #'tags::section_switch': codesection
             'tags::xbss_symbol': xbss_symbol
             'tags::patch': patch
             'tags::uninitialized': uninitialized

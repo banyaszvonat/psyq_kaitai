@@ -31,6 +31,56 @@ for sect in psq.sections:
 print(file_segments["section_definitions"][0][-1].tag, file_segments["section_definitions"][0][-1].value)
 print(file_segments["section_definitions"][1][-1].tag, file_segments["section_definitions"][1][-1].value)
 print(len(file_segments["section_definitions"]))
-		
+
+codes = [[tv for tv in segment if tv.tag == PsyqObj.Tags.code] for segment in file_segments["section_definitions"]]
+symbols = [sym for sym in file_segments["xdefs_xrefs"] if sym.tag == PsyqObj.Tags.xdef]
+
+sections = {}
+
+for sect_tv in file_segments["section_symbols"]:
+	sect_num = sect_tv.value.number
+	sections[sect_num] = {'number': sect_tv.value.number, 'group': sect_tv.value.group, 'alignment': sect_tv.value.alignment, 'name': sect_tv.value.name.str}
+
+for sec in file_segments["section_definitions"]:
+	header = sec[0]
+	number = header.value.next_sec
+	codes = [tv for tv in sec if tv.tag == PsyqObj.Tags.code]
+	if codes[0]: # We assume 0 or 1 code tags per section. Symbols declared with section+offset seems to support this interpretation
+		sections[number]['code'] = codes[0].value.code.code
+		sections[number]['has_code'] = True
+	else:
+		sections[number]['has_code'] = False
+
+symbols_by_sect_num = {}
+for sym in file_segments["xdefs_xrefs"]:
+	if sym.tag == PsyqObj.Tags.xdef:
+		syms = symbols_by_sect_num.get(sym.value.section, {})
+		syms[sym.value.number] = { "value": sym.value }
+		symbols_by_sect_num[sym.value.section] = syms
+
+
+for sectnum, sect in symbols_by_sect_num.items():
+		#print("sectnum:", sectnum)
+		#print("sect:", sect)
+		if not sections[sectnum]["has_code"]: # TODO: what to do when there is no code section? might need to work with tags for uninitialized memory.
+			continue
+
+		sym_offsets = [sym["value"].offset for symnum,sym in sect.items()]
+		sym_ends = sym_offsets[1:]
+		sym_ends.append(len(sections[sectnum]["code"]))
+
+		#print("sym_offsets:", sym_offsets)
+		#print("sym_ends:", sym_ends)
+
+		offset_arrays_index = 0
+		for symnum,sym in sect.items():
+			sym['end'] = sym_ends[offset_arrays_index]
+			#print("sym_offset:", sym['value'].offset)
+			#print("sym_end:", sym["end"])
+			sym['code'] = sections[sectnum]["code"][sym['value'].offset:sym['end']]
+			#print(f"sections[{sectnum}]['code'][ {symoffset} : {symend} ] = {codesnippet}".format(sectnum=sectnum, symoffset=sym['value'].offset, symend=sym['end'], codesnippet=sym['code']))
+			#print("sections[{sectnum}]['code'][{sym_offset}:{sym_end}] = {codesnippet}".format(sectnum=sectnum, sym_offset=sym['value'].offset, sym_end=sym['end'], codesnippet=sym['code']))
+			offset_arrays_index += 1
+
 code.interact(local=locals())
 

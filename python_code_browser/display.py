@@ -60,8 +60,6 @@ for sym in file_segments["xdefs_xrefs"]:
 
 
 for sectnum, sect in symbols_by_sect_num.items():
-		#print("sectnum:", sectnum)
-		#print("sect:", sect)
 		if not sections[sectnum]["has_code"]: # TODO: what to do when there is no code section? might need to work with tags for uninitialized memory.
 			continue
 
@@ -69,17 +67,11 @@ for sectnum, sect in symbols_by_sect_num.items():
 		sym_ends = sym_offsets[1:]
 		sym_ends.append(len(sections[sectnum]["code"]))
 
-		#print("sym_offsets:", sym_offsets)
-		#print("sym_ends:", sym_ends)
 
 		offset_arrays_index = 0
 		for symnum,sym in sect.items():
 			sym['end'] = sym_ends[offset_arrays_index]
-			#print("sym_offset:", sym['value'].offset)
-			#print("sym_end:", sym["end"])
 			sym['code'] = sections[sectnum]["code"][sym['value'].offset:sym['end']]
-			#print(f"sections[{sectnum}]['code'][ {symoffset} : {symend} ] = {codesnippet}".format(sectnum=sectnum, symoffset=sym['value'].offset, symend=sym['end'], codesnippet=sym['code']))
-			#print("sections[{sectnum}]['code'][{sym_offset}:{sym_end}] = {codesnippet}".format(sectnum=sectnum, sym_offset=sym['value'].offset, sym_end=sym['end'], codesnippet=sym['code']))
 			offset_arrays_index += 1
 
 code.interact(local=locals())

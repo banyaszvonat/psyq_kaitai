@@ -18,6 +18,8 @@ file_segments["rest"] = [sect for sect in psq.sections if sect.tag in misc_tags]
 sec_def = []
 cur_sec = None
 
+# Assign tags after a SECTION_SWITCH tag to the section referenced by that tag
+
 for sect in psq.sections:
 	if sect.tag == PsyqObj.Tags.section_switch:
 		if cur_sec: # Prevent appending an empty array as the first section

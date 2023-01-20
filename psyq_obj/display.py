@@ -8,7 +8,7 @@ file_segments = {'section_symbols': None, 'xdefs_xrefs': None, 'section_definiti
 
 misc_tags = [PsyqObj.Tags.eof, PsyqObj.Tags.run_at] # TODO: need more examples. some of these tags might belong to sections and will get duplicated
 
-# Gather up all the tags and organize them a little
+# Gather up most of the tags and organize them a little
 
 file_segments["section_symbols"] = [sect for sect in psq.sections if sect.tag == PsyqObj.Tags.section_symbol]
 file_segments["xdefs_xrefs"] = [sect for sect in psq.sections if sect.tag == PsyqObj.Tags.xref or sect.tag == PsyqObj.Tags.xdef]

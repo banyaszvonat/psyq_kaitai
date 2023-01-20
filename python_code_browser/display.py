@@ -8,6 +8,8 @@ file_segments = {'section_symbols': None, 'xdefs_xrefs': None, 'section_definiti
 
 misc_tags = [PsyqObj.Tags.eof, PsyqObj.Tags.run_at] # TODO: need more examples. some of these tags might belong to sections and will get duplicated
 
+# Gather up all the tags and organize them a little
+
 file_segments["section_symbols"] = [sect for sect in psq.sections if sect.tag == PsyqObj.Tags.section_symbol]
 file_segments["xdefs_xrefs"] = [sect for sect in psq.sections if sect.tag == PsyqObj.Tags.xref or sect.tag == PsyqObj.Tags.xdef]
 file_segments["section_definitions"] = []
@@ -28,38 +30,45 @@ for sect in psq.sections:
 	elif cur_sec:
 		sec_def.append(sect)
 
-print(file_segments["section_definitions"][0][-1].tag, file_segments["section_definitions"][0][-1].value)
-print(file_segments["section_definitions"][1][-1].tag, file_segments["section_definitions"][1][-1].value)
-print(len(file_segments["section_definitions"]))
+#print(file_segments["section_definitions"][0][-1].tag, file_segments["section_definitions"][0][-1].value)
+#print(file_segments["section_definitions"][1][-1].tag, file_segments["section_definitions"][1][-1].value)
+#print(len(file_segments["section_definitions"]))
 
+# Example query after we processed the parsed structure
 codes = [[tv for tv in segment if tv.tag == PsyqObj.Tags.code] for segment in file_segments["section_definitions"]]
-symbols = [sym for sym in file_segments["xdefs_xrefs"] if sym.tag == PsyqObj.Tags.xdef]
 
+# Gather up XDEFs for later
+xdefs = [sym for sym in file_segments["xdefs_xrefs"] if sym.tag == PsyqObj.Tags.xdef]
+
+
+# Creating a structure to hold all the information gathered from SECTION_SYMBOL and SECTION_SWITCH + CODE tags. This could be extended with a dict to hold all the symbols
 sections = {}
 
 for sect_tv in file_segments["section_symbols"]:
 	sect_num = sect_tv.value.number
 	sections[sect_num] = {'number': sect_tv.value.number, 'group': sect_tv.value.group, 'alignment': sect_tv.value.alignment, 'name': sect_tv.value.name.str}
 
+# Figure out if there are code tags in the section, and extract them if so
 for sec in file_segments["section_definitions"]:
 	header = sec[0]
 	number = header.value.next_sec
-	codes = [tv for tv in sec if tv.tag == PsyqObj.Tags.code]
-	if codes[0]: # We assume 0 or 1 code tags per section. Symbols declared with section+offset seems to support this interpretation
-		sections[number]['code'] = codes[0].value.code.code
+	codes_in_section = [tv for tv in sec if tv.tag == PsyqObj.Tags.code]
+	if codes_in_section[0]: # We assume 0 or 1 code tags per section. Symbols declared with section+offset seems to support this interpretation
+		sections[number]['code'] = codes_in_section[0].value.code.code
 		sections[number]['has_code'] = True
 	else:
 		sections[number]['has_code'] = False
 
-symbols_by_sect_num = {}
-for sym in file_segments["xdefs_xrefs"]:
-	if sym.tag == PsyqObj.Tags.xdef:
-		syms = symbols_by_sect_num.get(sym.value.section, {})
-		syms[sym.value.number] = { "value": sym.value }
-		symbols_by_sect_num[sym.value.section] = syms
+# Group XDEFs by section number
+xdefs_by_sect_num = {}
+for sym in xdefs:
+	syms = xdefs_by_sect_num.get(sym.value.section, {})
+	syms[sym.value.number] = { "value": sym.value }
+	xdefs_by_sect_num[sym.value.section] = syms
 
 
-for sectnum, sect in symbols_by_sect_num.items():
+# Extract the symbols' code from the associated section's code tag. Doesn't take into account if there's padding after a function ends and another begins
+for sectnum, sect in xdefs_by_sect_num.items():
 		if not sections[sectnum]["has_code"]: # TODO: what to do when there is no code section? might need to work with tags for uninitialized memory.
 			continue
 

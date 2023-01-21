@@ -199,10 +199,10 @@ class ObjSymExtractor:
 				txt_name = "{}_{}_metadata.txt".format(identifier, hex(xdef["value"].number))
 				txt_path = os.path.join(dest_dir_path, txt_name)
 				with open(txt_path, "w") as txtfile:
-					txtfile.write("Number: {}".format(hex(xdef["value"].number)))
-					txtfile.write("Name: {}".format(xdef["value"].sym.str))
-					txtfile.write("Section: {}".format(hex(section_num))) # Section name could be looked up from the result dict
-					txtfile.write("Offset: {}".format(hex(xdef["value"].offset)))
+					txtfile.write("Number: {}\n".format(hex(xdef["value"].number)))
+					txtfile.write("Name: {}\n".format(xdef["value"].sym.str))
+					txtfile.write("Section: {}\n".format(hex(section_num))) # Section name could be looked up from the result dict
+					txtfile.write("Offset: {}\n".format(hex(xdef["value"].offset)))
 
 				bin_name = "{}_{}_code.bin".format(identifier, hex(xdef["value"].number))
 				bin_path = os.path.join(dest_dir_path, bin_name)

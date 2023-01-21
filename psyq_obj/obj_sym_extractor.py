@@ -170,17 +170,29 @@ class ObjSymExtractor:
 
 		result = { 'success': True, 'sections': sections, 'file_segments': file_segments, 'xdefs_by_sect_num': xdefs_by_sect_num } # Intermediate format accepted by to_*() functions (TODO: write these)
 
-	def to_bins_and_txts(self, res_dict, identifier):
+	def to_bins_and_txts(self, res_dict, identifier, cwd_path):
 		if not res_dict.get('success', False): # Pretty useless for now. Validating results is TODO
+			print("Result passed to to_bins_and_txts is invalid")
 			return
+
+		if not os.path.exists(cwd_path):
+			print("Nonexistent path given to to_bins_and_txts()")
+			return
+
+		dest_dir_path = os.path.join(cwd_path, identifier)
+		if not os.path.exists(dest_dir_path):
+			os.mkdir(dest_dir_path)
+
 		xdefs = res_dict['xdefs_by_sect_num']
 		for xdef in xdefs:
 			txt_name = "{}_{}_metadata.txt".format(identifier, hex(xdef["value"].number))
-			with open(txt_name, "w") as txtfile:
+			txt_path = os.path.join(dest_dir_path, txt_name)
+			with open(txt_path, "w") as txtfile:
 				txtfile.write("Number: {}".format(hex(xdef["value"].number))
 				txtfile.write("Name: {}".format(xdef["value"].sym.str))
 				txtfile.write("Offset: {}".format(hex(xdef["value"].offset))
 
 			bin_name = "{}_{}_code.bin".format(identifier, hex(xdef["value"].number))
-			with open(bin_name, "wb") as binfile:
+			bin_path = os.path.join(dest_dir_path, bin_name)
+			with open(bin_path, "wb") as binfile:
 				binfile.write(xdef["code"])

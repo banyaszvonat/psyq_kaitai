@@ -93,6 +93,7 @@ class ObjSymExtractor:
 	def __init__(self):
 		pass
 
+	# TODO : make these class methods
 	def from_tagvalues(self, tagvalues):
 		file_segments = {'section_symbols': None, 'xdefs_xrefs': None, 'section_definitions': None, 'rest': None}
 
@@ -151,7 +152,7 @@ class ObjSymExtractor:
 
 		# Extract the symbols' code from the associated section's code tag. Doesn't take into account if there's padding after a function ends and another begins
 		for sectnum, sect in xdefs_by_sect_num.items():
-				if not sections[sectnum]["has_code"]: # TODO: what to do when there is no code section? might need to work with tags for uninitialized memory.
+				if not sections[sectnum]["has_code"]: # TODO : what to do when there is no code section? might need to work with tags for uninitialized memory.
 					continue
 
 				sym_offsets = [sym["value"].offset for symnum,sym in sect.items()]
@@ -161,8 +162,23 @@ class ObjSymExtractor:
 
 				offset_arrays_index = 0
 				for symnum,sym in sect.items():
-					sym['end'] = sym_ends[offset_arrays_index]
-					sym['code'] = sections[sectnum]["code"][sym['value'].offset:sym['end']]
+					sym["end"] = sym_ends[offset_arrays_index]
+					sym["code"] = sections[sectnum]["code"][sym["value"].offset:sym["end"]]
 					offset_arrays_index += 1
 
-		result = { 'success': True, 'sections': sections, 'file_segments': file_segments } # Intermediate format accepted by to_*() functions (TODO: write these)
+		result = { 'success': True, 'sections': sections, 'file_segments': file_segments, 'xdefs_by_sect_num': xdefs_by_sect_num } # Intermediate format accepted by to_*() functions (TODO: write these)
+
+	def to_bins_and_txts(self, res_dict, identifier):
+		if not res_dict.get('success', False): # Pretty useless for now. Validating results is TODO
+			return
+		xdefs = res_dict['xdefs_by_sect_num']
+		for xdef in xdefs:
+			txt_name = "{}_{}_metadata.txt".format(identifier, hex(xdef["value"].number))
+			with open(txt_name, "w") as txtfile:
+				txtfile.write("Number: {}".format(hex(xdef["value"].number))
+				txtfile.write("Name: {}".format(xdef["value"].sym.str))
+				txtfile.write("Offset: {}".format(hex(xdef["value"].offset))
+
+			bin_name = "{}_{}_code.bin".format(identifier, hex(xdef["value"].number))
+			with open(bin_name, "wb") as binfile:
+				binfile.write(xdef["code"])

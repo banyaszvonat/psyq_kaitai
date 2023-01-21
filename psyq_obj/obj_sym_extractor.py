@@ -1,7 +1,7 @@
 import code
 import os
 
-from psyq_obj import PsyqObj
+from parsers.psyq_obj import PsyqObj
 
 if 0:
 	psq = PsyqObj.from_file("SYS.OBJ")

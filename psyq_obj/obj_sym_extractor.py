@@ -169,6 +169,7 @@ class ObjSymExtractor:
 					offset_arrays_index += 1
 
 		result = { 'success': True, 'sections': sections, 'file_segments': file_segments, 'xdefs_by_sect_num': xdefs_by_sect_num } # Intermediate format accepted by to_*() functions (TODO: write these)
+		return result
 
 	def to_bins_and_txts(self, res_dict, identifier, cwd_path):
 		if not res_dict.get('success', False): # Pretty useless for now. Validating results is TODO

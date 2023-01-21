@@ -160,6 +160,8 @@ class ObjSymExtractor:
 				if not sections[sectnum]["has_code"]: # TODO : what to do when there is no code section? might need to work with tags for uninitialized memory.
 					continue
 
+				# TODO : This assumes symbols are stored in ascending order, ie higher number symbols are at higher offsets. This is not true in practice and breaks code extraction
+				# For each symbol, the sym_end we're looking for is the smallest offset in sym_offsets that is larger than the sym_offset at the given position
 				sym_offsets = [sym["value"].offset for symnum,sym in sect.items()]
 				sym_ends = sym_offsets[1:]
 				sym_ends.append(len(sections[sectnum]["code"]))

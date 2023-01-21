@@ -2,7 +2,7 @@
 
 import kaitaistruct
 from kaitaistruct import KaitaiStruct, KaitaiStream, BytesIO
-from psyq_obj import PsyqObj
+from .psyq_obj import PsyqObj
 
 
 if getattr(kaitaistruct, 'API_VERSION', (0, 9)) < (0, 9):

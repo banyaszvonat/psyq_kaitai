@@ -180,7 +180,7 @@ class ObjSymExtractor:
 			return
 
 		dest_dir_path = os.path.join(cwd_path, identifier)
-		if not os.path.exists(dest_dir_path):
+		if not os.path.isdir(dest_dir_path):
 			os.mkdir(dest_dir_path)
 
 		xdefs = res_dict['xdefs_by_sect_num']

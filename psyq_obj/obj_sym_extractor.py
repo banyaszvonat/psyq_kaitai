@@ -194,15 +194,17 @@ class ObjSymExtractor:
 			os.mkdir(dest_dir_path)
 
 		xdefs = res_dict['xdefs_by_sect_num']
-		for xdef in xdefs:
-			txt_name = "{}_{}_metadata.txt".format(identifier, hex(xdef["value"].number))
-			txt_path = os.path.join(dest_dir_path, txt_name)
-			with open(txt_path, "w") as txtfile:
-				txtfile.write("Number: {}".format(hex(xdef["value"].number)))
-				txtfile.write("Name: {}".format(xdef["value"].sym.str))
-				txtfile.write("Offset: {}".format(hex(xdef["value"].offset)))
+		for section_num, xdefs_in_section in xdefs.items():
+			for sym_num, xdef in xdefs_in_section.items():
+				txt_name = "{}_{}_metadata.txt".format(identifier, hex(xdef["value"].number))
+				txt_path = os.path.join(dest_dir_path, txt_name)
+				with open(txt_path, "w") as txtfile:
+					txtfile.write("Number: {}".format(hex(xdef["value"].number)))
+					txtfile.write("Name: {}".format(xdef["value"].sym.str))
+					txtfile.write("Section: {}".format(hex(section_num))) # Section name could be looked up from the result dict
+					txtfile.write("Offset: {}".format(hex(xdef["value"].offset)))
 
-			bin_name = "{}_{}_code.bin".format(identifier, hex(xdef["value"].number))
-			bin_path = os.path.join(dest_dir_path, bin_name)
-			with open(bin_path, "wb") as binfile:
-				binfile.write(xdef["code"])
+				bin_name = "{}_{}_code.bin".format(identifier, hex(xdef["value"].number))
+				bin_path = os.path.join(dest_dir_path, bin_name)
+				with open(bin_path, "wb") as binfile:
+					binfile.write(xdef["code"])

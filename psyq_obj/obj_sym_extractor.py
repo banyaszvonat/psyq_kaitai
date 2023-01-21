@@ -99,12 +99,21 @@ class ObjSymExtractor:
 	def from_tagvalues(self, tagvalues):
 		file_segments = {'section_symbols': None, 'xdefs_xrefs': None, 'section_definitions': None, 'rest': None}
 
+		psyq_tag_class = PsyqObj.Tags
+
+		# Workaround for the enums not being equivalent if accessed via different import paths
+		if len(tagvalues) > 0:
+			psyq_tag_class = type(tagvalues[0].tag)
+
+		misc_tags = [psyq_tag_class.eof, psyq_tag_class.run_at]
+
+
 		# Gather up most of the tags and organize them a little
 
-		file_segments["section_symbols"] = [sect for sect in tagvalues if sect.tag == PsyqObj.Tags.section_symbol]
-		file_segments["xdefs_xrefs"] = [sect for sect in tagvalues if sect.tag == PsyqObj.Tags.xref or sect.tag == PsyqObj.Tags.xdef]
+		file_segments["section_symbols"] = [sect for sect in tagvalues if sect.tag == psyq_tag_class.section_symbol]
+		file_segments["xdefs_xrefs"] = [sect for sect in tagvalues if sect.tag == psyq_tag_class.xref or sect.tag == psyq_tag_class.xdef]
 		file_segments["section_definitions"] = []
-		file_segments["rest"] = [sect for sect in tagvalues if sect.tag in __class__.misc_tags]
+		file_segments["rest"] = [sect for sect in tagvalues if sect.tag in misc_tags]
 
 		sec_def = []
 		cur_sec = None
@@ -112,19 +121,19 @@ class ObjSymExtractor:
 		# Assign tags after a SECTION_SWITCH tag to the section referenced by that tag
 
 		for sect in tagvalues:
-			if sect.tag == PsyqObj.Tags.section_switch:
+			if sect.tag == psyq_tag_class.section_switch:
 				if cur_sec: # Prevent appending an empty array as the first section
 					file_segments["section_definitions"].append(sec_def)
 				sec_def = []
 				sec_def.append(sect)
 				cur_sec = sect
-			elif sect.tag == PsyqObj.Tags.eof and cur_sec:
+			elif sect.tag == psyq_tag_class.eof and cur_sec:
 				file_segments["section_definitions"].append(sec_def)
 			elif cur_sec:
 				sec_def.append(sect)
 
 		# Gather up XDEFs for later
-		xdefs = [sym for sym in file_segments["xdefs_xrefs"] if sym.tag == PsyqObj.Tags.xdef]
+		xdefs = [sym for sym in file_segments["xdefs_xrefs"] if sym.tag == psyq_tag_class.xdef]
 
 		# Creating a structure to hold all the information gathered from SECTION_SYMBOL and SECTION_SWITCH + CODE tags. This could be extended with a dict to hold all the symbols
 		sections = {}
@@ -137,8 +146,8 @@ class ObjSymExtractor:
 		for sec in file_segments["section_definitions"]:
 			header = sec[0]
 			number = header.value.next_sec
-			codes_in_section = [tv for tv in sec if tv.tag == PsyqObj.Tags.code]
-			if codes_in_section[0]: # We assume 0 or 1 code tags per section. Symbols declared with section+offset seems to support this interpretation
+			codes_in_section = [tv for tv in sec if tv.tag == psyq_tag_class.code]
+			if len(codes_in_section) > 0: # We assume 0 or 1 code tags per section. Symbols declared with section+offset seems to support this interpretation
 				sections[number]['code'] = codes_in_section[0].value.code.code
 				sections[number]['has_code'] = True
 			else:

@@ -163,9 +163,15 @@ class ObjSymExtractor:
 				# TODO : This assumes symbols are stored in ascending order, ie higher number symbols are at higher offsets. This is not true in practice and breaks code extraction
 				# For each symbol, the sym_end we're looking for is the smallest offset in sym_offsets that is larger than the sym_offset at the given position
 				sym_offsets = [sym["value"].offset for symnum,sym in sect.items()]
-				sym_ends = sym_offsets[1:]
-				sym_ends.append(len(sections[sectnum]["code"]))
-
+				sym_ends = []
+				for sym_offset in sym_offsets:
+					bigger_offsets = [offset for offset in sym_offsets if offset > sym_offset]
+					if len(bigger_offsets) > 0:
+						end = min(bigger_offsets)
+						sym_ends.append(end)
+					else:
+						end = len(sections[sectnum]["code"])
+						sym_ends.append(end)
 
 				offset_arrays_index = 0
 				for symnum,sym in sect.items():

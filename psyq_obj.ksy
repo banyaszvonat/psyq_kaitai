@@ -107,7 +107,7 @@ types:
         type: u2
       - id: code
         type: code_with_padding
-        size: len + len % 4 # TODO: check if this shouldn't be len - (4 - (len % 4))
+        size: len + len % 4 # TODO: check if this shouldn't be len - ((4 - (len % 4)) % 4)
   xbss_symbol:
     seq:
       - id: number
